@@ -1,26 +1,24 @@
-// 需要配合 fiddler 使用
-// fiddler 脚本
-
-// if((oSession.uriContains('www.8100d.com') || oSession.uriContains('vrbetapi.com/v/Bet/1')) && oSession.oResponse.headers.ExistsAndContains("Content-Type","text/html"))) { 
-// oSession.utilDecodeResponse(); 
-// var oBody = System.Text.Encoding.UTF8.GetString(oSession.responseBodyBytes);
-// oBody = oBody.replace("<head>", '<head><meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">');
-// // 使用正则进行替换
-// oBody = oBody.replace("</body>", '<script crossorigin="anonymous" integrity="sha384-LVoNJ6yst/aLxKvxwp6s2GAabqPczfWh6xzm38S/YtjUyZ+3aTKOnD/OJVGYLZDl" src="https://lib.baomitu.com/jquery/3.5.0/jquery.min.js"></script><script src="http://localhost/auto.js?key=5f037599d0b895d705b7b34d"></script></body>');
-// //设置新的响应内容
-// oSession.utilSetResponseBody(oBody);
-// }
+// ==UserScript==
+// @name        2018.1688.js
+// @namespace   1688AUTO  Scripts
+// @include     *://detail.1688.com/*
+// @grant       none
+// @version     1.0
+// @author      -
+// @description 2022/5/23 18:58:01
+// ==/UserScript==
 
 var analy = function(el) {
     var objs = {};
 
-    var title = document.querySelector('#mod-detail-title>h1').innerText;
-    var imgprops = document.querySelectorAll("#dt-tab li img:not([data-lazy-src])");
-    var description = document.querySelector('#de-description-detail').innerHTML;
+    var title = document.querySelector('.title-text').innerText;
+    var imgprops = document.querySelectorAll("img.detail-gallery-img");
+    var description = document.querySelector('.content-detail').innerHTML;
 
     var imgs = new Array();
     imgprops.forEach(element => {
-        imgs.push(element.getAttribute('src').replace("60x60", "460x460"));
+        imgs.push(element.getAttribute('src'));
+                  // .replace("60x60", "460x460"));
     });
 
 
@@ -29,10 +27,15 @@ var analy = function(el) {
     objs.imgs = imgs;
     objs.description = description.replace(/\n\t/g, "");
 
-    objs.sku = {
-        skuProps: iDetailData.sku.skuProps,
-        skuMap: iDetailData.sku.skuMap
-    };
+    // objs.sku = {
+    //     skuProps: iDetailData.sku.skuProps,
+    //     skuMap: iDetailData.sku.skuMap
+    // };
+
+  let data = window.__INIT_DATA.data;
+      let  good = window.__INIT_DATA.globalData;
+
+  objs.sku = good.skuModel;
 
     var objstr = JSON.stringify(objs);
 
@@ -46,10 +49,10 @@ var analy = function(el) {
 
     if (document.execCommand('Copy')) {
         document.execCommand('Copy');
-        el.innerHTML = '<span style="color: AQUAMARINE; font-size: 13px;">点击解析(解析成功)</span>';
+        el.innerHTML = '<span style="color: #1abc9c; font-size: 13px;">点击解析(解析成功)</span>';
         layer.msg('解析成功', { icon: 1 });
     } else {
-        el.innerHTML = '<span style="color: MINTCREAM; font-size: 13px;">点击解析(解析失败)</span>';
+        el.innerHTML = '<span style="color: #ff6b81; font-size: 13px;">点击解析(解析失败)</span>';
         layer.msg('解析失败', { icon: 2 });
     }
     document.body.removeChild(input);
@@ -71,21 +74,17 @@ window.onload = function() {
 
     action_panel[0].appendChild(copybtn);
 
-    var contentWrap = document.querySelector(".content-wrap");
-    var docheight = 0,
-        cury = 0;
-    var interval = setInterval(function() {
-        docheight = contentWrap.scrollHeight;
-        cury += 200;
-        window.scrollTo(0, cury);
-        if (cury >= docheight) {
-            window.scrollTo(0, 150);
-            clearInterval(interval);
-            
-            setTimeout(function() {
-                // copybtn.click();
-                analy(copybtn);
-            }, 1500)
-        }
-    }, 20);
+   var contentWrap = document.body;
+            var docheight = 0,
+                cury = 0;
+            var interval = setInterval(function () {
+                docheight = contentWrap.scrollHeight;
+                cury += 200;
+                window.scrollTo(0, cury);
+                if (cury >= docheight) {
+                    window.scrollTo(0, 150);
+                    clearInterval(interval);
+                    // document.querySelector('.cat-modal').style.display = "block";
+                }
+            }, 50);
 };
